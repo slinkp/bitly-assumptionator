@@ -9,6 +9,8 @@ requires = [
     'pyramid',
     'pyramid_debugtoolbar',
     'waitress',
+    'requests',
+    'simplejson',
     ]
 
 setup(name='assumptionator',
