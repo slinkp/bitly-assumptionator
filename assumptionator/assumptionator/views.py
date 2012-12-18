@@ -3,21 +3,20 @@ import bitly_api
 import logging
 import requests
 import urlparse
+import time
 
 api_root = 'https://api-ssl.bitly.com/v3/'
 
 THUMBNAIL_SIZE = 140
 
 
-@view_config(route_name='home', renderer='templates/index.pt')
-def my_view(request):
-    data = bitly_api.fetch(api_root + 'user/info')
-    return {'project': 'assumptionator', 'bitly': data}
-
 
 @view_config(route_name='link_info', renderer='json')
 def link_info(request):
     urls = request.GET.getall('shortUrl')
+    if not urls:
+        return {'data': []}
+
     params = {'shortUrl': urls}
     data = bitly_api.fetch(api_root + 'info', params=params)['data']['info']
     # TODO: fewer API calls?
@@ -44,8 +43,13 @@ def link_info(request):
                                       params={'link': short_url,
                                               'thumbnail_width': THUMBNAIL_SIZE,
                                               'thumbnail_height': THUMBNAIL_SIZE})
+        except requests.HTTPError:
+            logging.exception("Error fetching embedly preview for %r: %s" % short_url)
+        try:
             info['preview'] = preview['data']['images'][0]['thumbnail_url']
-        except (requests.HTTPError, KeyError, TypeError, IndexError):
-            logging.exception("Error fetching embedly preview for %r" % short_url)
+        except (KeyError, TypeError, IndexError):
+            logging.exception("Got status %s: %r fetching preview for %r" %
+                              (preview.get('status_code', preview.get('status_txt'),
+                                           short_url)))
 
     return {'data': data}
