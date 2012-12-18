@@ -72,14 +72,14 @@ def get_token(host):
         password = getpass.getpass('password: ')
         url = host + '/oauth/access_token'
         resp = requests.post(
-            url, headers=get_headers(), body='',
+            url, headers=get_headers(),
             auth=(user, password))
             #validate_cert=False)
-        if resp.status == 401:
+        if resp.status_code == 401:
             print >> sys.stderr, 'Invalid username/password.'
             return get_token(host)
         resp.raise_for_status()
-        token = resp.body.strip()
+        token = resp.text.strip()
         tokens[host] = token
         write_tokens(tokens)
         return token
