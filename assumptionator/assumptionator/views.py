@@ -20,19 +20,24 @@ def link_info(request):
     urls = request.GET.getall('shortUrl')
     params = {'shortUrl': urls}
     data = bitly_api.fetch(api_root + 'info', params=params)['data']['info']
+    # TODO: fewer API calls?
+    # For now, clicks for all time.
     for info in data:
-        # TODO: fewer API calls?
-        # For now, clicks for all time.
         short_url = info['short_url']
         clicks = bitly_api.fetch(api_root + 'link/clicks', params={'link': short_url})
         info['clicks'] = clicks['data']['link_clicks']
+        # Get long URL and hostname.
         try:
             expanded = bitly_api.fetch(api_root + 'expand', params={'shortUrl': short_url})
-            parsed = urlparse.urlparse(expanded['data']['expand'][0]['long_url'])
+            long_url = expanded['data']['expand'][0]['long_url']
+            info['long_url'] = long_url
+            parsed = urlparse.urlparse(long_url)
             info['domain'] = parsed.hostname or ''
         except (requests.HTTPError, KeyError, IndexError):
             logging.exception("Error fetching long url for %r" % short_url)
             info['domain'] = ''
+            info['long_url'] = ''
+        # Get embedly preview thumbnail.
         info['preview'] = ''
         try:
             preview = bitly_api.fetch(api_root + 'link/preview',
