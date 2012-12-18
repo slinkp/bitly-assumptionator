@@ -45,7 +45,7 @@ def link_info(request):
                                               'thumbnail_width': THUMBNAIL_SIZE,
                                               'thumbnail_height': THUMBNAIL_SIZE})
             info['preview'] = preview['data']['images'][0]['thumbnail_url']
-        except (requests.HTTPError, KeyError):
+        except (requests.HTTPError, KeyError, TypeError, IndexError):
             logging.exception("Error fetching embedly preview for %r" % short_url)
 
     return {'data': data}
