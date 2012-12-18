@@ -3,12 +3,10 @@ import bitly_api
 import logging
 import requests
 import urlparse
-import time
 
 api_root = 'https://api-ssl.bitly.com/v3/'
 
 THUMBNAIL_SIZE = 140
-
 
 
 @view_config(route_name='link_info', renderer='json')
