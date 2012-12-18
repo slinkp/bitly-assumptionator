@@ -85,7 +85,7 @@ def get_token(host):
         return token
 
 
-def fetch(url):
+def fetch(url, params=None):
     # If we were given a URL like /v3/user/link_history, we assume we're
     # making a request against a local dev VM.
     if url.startswith('/'):
@@ -107,7 +107,10 @@ def fetch(url):
             host, ', '.join(hosts))
         return 1
 
-    params = cgi.parse_qs(qs)
+    if params is None:
+        params = cgi.parse_qs(qs)
+    else:
+        params.update(cgi.parse_qs(qs))
     if not params.get('access_token'):
         params['access_token'] = get_token(host)
 
