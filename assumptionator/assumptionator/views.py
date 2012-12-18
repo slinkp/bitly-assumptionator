@@ -21,9 +21,9 @@ def link_info(request):
     params = {'shortUrl': urls}
     data = bitly_api.fetch(api_root + 'info', params=params)['data']['info']
     # TODO: fewer API calls?
-    # For now, clicks for all time.
     for info in data:
         short_url = info['short_url']
+        # For now, clicks for all time.
         clicks = bitly_api.fetch(api_root + 'link/clicks', params={'link': short_url})
         info['clicks'] = clicks['data']['link_clicks']
         # Get long URL and hostname.
